@@ -29,12 +29,7 @@ public class main extends JFrame{
 	public static JButton closeBtn = new JButton("Close");
 	
 	public static volatile ServerSocket sSo;
-	
-	 public static volatile enum tcpCommands{
-		 Low,
-		 High,
-		 Med,
-	}
+
 	
 	
 	public main(){
@@ -101,6 +96,7 @@ public class main extends JFrame{
 						DatagramSocket dSkt = new DatagramSocket();
 						InputStream iS = tcpClientSkt.getInputStream();
 						OutputStream oS = tcpClientSkt.getOutputStream();
+						ByteArrayOutputStream bOs = new ByteArrayOutputStream();
 			//tell remote system to start stream | capture it here through the buffer | send it to the line
 						byte[] tempBuffer = new byte[65000];
 						DatagramPacket dPkt = new DatagramPacket(tempBuffer, tempBuffer.length);
@@ -122,6 +118,7 @@ public class main extends JFrame{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		new main();
+		new TcpThread(sSo).start();
 	}
 
 /////////////////////////////////////////////////	
