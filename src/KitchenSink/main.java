@@ -2,7 +2,7 @@ package KitchenSink;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 
 import javax.sound.sampled.AudioFormat;
@@ -30,7 +30,11 @@ public class main extends JFrame{
 	
 	public static volatile ServerSocket sSo;
 	
-	
+	 public static volatile enum tcpCommands{
+		 Low,
+		 High,
+		 Med,
+	}
 	
 	
 	public main(){
@@ -70,6 +74,8 @@ public class main extends JFrame{
 		this.setVisible(true);
 		
 		
+
+		
 		setSocketPortLabel();
 		
 		
@@ -82,11 +88,20 @@ public class main extends JFrame{
 				try {
 					new Thread() {
 						
+						
+						
+						
+						String ipAddrStr = ipAdrData.getText();
+						int destPortNum = Integer.parseInt(portNumData.getText());
 						AudioFormat aFormat = new AudioFormat(8000, 8, 2, false, false);
 						DataLine.Info sDli = new DataLine.Info(SourceDataLine.class, aFormat);
 						SourceDataLine sDl = (SourceDataLine) AudioSystem.getLine(sDli);
-						
+						InetAddress serverIpInet = InetAddress.getByName(ipAddrStr);
+						Socket tcpClientSkt = new Socket(serverIpInet, destPortNum);
 						DatagramSocket dSkt = new DatagramSocket();
+						InputStream iS = tcpClientSkt.getInputStream();
+						OutputStream oS = tcpClientSkt.getOutputStream();
+			//tell remote system to start stream | capture it here through the buffer | send it to the line
 						byte[] tempBuffer = new byte[65000];
 						DatagramPacket dPkt = new DatagramPacket(tempBuffer, tempBuffer.length);
 						@Override
@@ -94,7 +109,7 @@ public class main extends JFrame{
 							
 						}
 					};
-				} catch (LineUnavailableException | SocketException e1) {
+				} catch (LineUnavailableException | IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -137,8 +152,16 @@ public class main extends JFrame{
 	}
 ///////////////////////////////////////////////////////////////////////	
 	
+
 	
 	
 	
+	
+	
+///////////////////////////////////////////////////////////////////////	
+	
+	
+
+///////////////////////////////////////////////////////////////////////
 	//end main class
 }
