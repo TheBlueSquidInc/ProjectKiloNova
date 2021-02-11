@@ -29,6 +29,8 @@ public class main extends JFrame{
 	public static JButton closeBtn = new JButton("Close");
 	
 	public static volatile ServerSocket sSo;
+	
+	public static volatile AudioStreamThread audioWorkerThread;
 
 	
 	
@@ -78,41 +80,38 @@ public class main extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				
 				try {
-					new Thread() {
-						
-						
-						
-						
-						String ipAddrStr = ipAdrData.getText();
-						int destPortNum = Integer.parseInt(portNumData.getText());
-						AudioFormat aFormat = new AudioFormat(8000, 8, 2, false, false);
-						DataLine.Info sDli = new DataLine.Info(SourceDataLine.class, aFormat);
-						SourceDataLine sDl = (SourceDataLine) AudioSystem.getLine(sDli);
-						InetAddress serverIpInet = InetAddress.getByName(ipAddrStr);
-						Socket tcpClientSkt = new Socket(serverIpInet, destPortNum);
-						DatagramSocket dSkt = new DatagramSocket();
-						InputStream iS = tcpClientSkt.getInputStream();
-						OutputStream oS = tcpClientSkt.getOutputStream();
-						ByteArrayOutputStream bOs = new ByteArrayOutputStream();
-			//tell remote system to start stream | capture it here through the buffer | send it to the line
-						byte[] tempBuffer = new byte[65000];
-						DatagramPacket dPkt = new DatagramPacket(tempBuffer, tempBuffer.length);
-						@Override
-						public void run(){
-							
-						}
-					};
-				} catch (LineUnavailableException | IOException e1) {
+					audioWorkerThread = new AudioStreamThread(ipAdrData.getText(), Integer.parseInt(portNumData.getText()));
+					audioWorkerThread.start();
+				} catch (NumberFormatException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (UnknownHostException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
 			}
 			
 		});
+		
+		
+		closeBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				audioWorkerThread.stopPlaying();
+				audioWorkerThread.stop();
+			}
+			
+		});
+		
+	//end main constructor	
 	}
 
 	public static void main(String[] args) {

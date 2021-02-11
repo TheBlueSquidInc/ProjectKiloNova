@@ -10,9 +10,8 @@ public class TcpThread extends Thread{
 	public static byte[] tempBuffer = new byte[65000];
 	public static volatile ByteArrayOutputStream bOs;
 	public static volatile String rcvData = "empty";
-	public static volatile PrintWriter out;
-	public static volatile BufferedReader in;
-	
+	public static volatile DataInputStream dIs;
+	public static volatile DataOutputStream dOs;
 	
 	public TcpThread(ServerSocket sSobj) {
 		sSo_2 = sSobj;
@@ -21,34 +20,56 @@ public class TcpThread extends Thread{
 	
 	@Override
 	public void run() {
+		
 	while(true) {
+		
 		try {
-			s_2 = sSo_2 .accept();
-			out = new PrintWriter(s_2.getOutputStream(), true);
-			in = new BufferedReader(new InputStreamReader(s_2.getInputStream()));
-			rcvData = in.readLine();
+			this.s_2 = sSo_2 .accept();
+			dIs = new DataInputStream(this.s_2.getInputStream());
+			dOs = new DataOutputStream(this.s_2.getOutputStream());
+			this.rcvData = dIs.readUTF();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		switch(rcvData) {
 		
-		case "empty":
-			System.out.println("ServerSocket did not run correctly");
+		switch(this.rcvData) {
+		
+			
+		case "Test":
+			System.out.println("Test successful");
 			break;
 			
-		case "test":
-			System.out.println("Test successful");
+		case "Start":
+			try {
+				dOs.writeUTF("START_ACK");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Start command received");
+			break;
 			
+		case "Stop":
+			
+			try {
+				dOs.writeUTF("STOP_ACK");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			try {
+				sSo_2.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			break;
+
 		}
 		
-		/* try {
-			sSo_2.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} */
 		
 	}
 	
