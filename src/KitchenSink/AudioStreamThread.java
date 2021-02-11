@@ -69,6 +69,12 @@ public class AudioStreamThread extends Thread{
 	
 	public static void sendPlayCmd() {
 		
+		try {
+			dgSkt = new DatagramSocket();
+		} catch (SocketException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		try {
 			dOs.writeUTF("Start");
@@ -80,6 +86,13 @@ public class AudioStreamThread extends Thread{
 		
 		try {
 			System.out.print(dIs.readUTF());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			dOs.writeUTF(Integer.toString(dgSkt.getLocalPort()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
