@@ -56,13 +56,25 @@ public class AudioStreamThread extends Thread{
 		this.dIs = new DataInputStream(this.tcpCskt.getInputStream());
 		
 		sendPlayCmd();
-		//initSound();
-		//initPacket();
+		initSound();
+		initPacket();
 	}
 	
 	@Override
 	public void run(){
-		
+		isPlaying = true;
+		while(isPlaying) {
+			
+			try {
+				dgSkt.receive(dgPkt);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			sDl.write(dgPkt.getData(), 0, dgPkt.getLength());
+			System.out.println(dgPkt.getData().toString());
+		}
 
 	}
 	
@@ -111,9 +123,9 @@ public class AudioStreamThread extends Thread{
 	
 	
 	public void initSound() {
-		sDl.start();
 		try {
-			sDl.open();
+			this.sDl.open(aFormat);
+			this.sDl.start();
 		} catch (LineUnavailableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

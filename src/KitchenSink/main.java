@@ -85,7 +85,7 @@ public class main extends JFrame{
 				
 				try {
 					audioWorkerThread = new AudioStreamThread(ipAdrData.getText(), Integer.parseInt(portNumData.getText()));
-					//audioWorkerThread.start();
+					audioWorkerThread.start();
 				} catch (NumberFormatException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

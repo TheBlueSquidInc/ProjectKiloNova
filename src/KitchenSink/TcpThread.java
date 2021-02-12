@@ -109,7 +109,7 @@ public class TcpThread extends Thread{
 	public static void runMic() {
 		isRecording = true;
 		hostInetAdr = s_2.getInetAddress();
-		aFormat = new AudioFormat(44100, 8, 2, false, false);
+		aFormat = new AudioFormat(8000, 8, 2, false, false);
 		tDli = new DataLine.Info(TargetDataLine.class, aFormat);
 		try {
 			tDl = (TargetDataLine) AudioSystem.getLine(tDli);
@@ -119,9 +119,10 @@ public class TcpThread extends Thread{
 		}
 		tempBuffer = new byte[tDl.getBufferSize()/5];
 		dgPckt = new DatagramPacket(tempBuffer,0,tempBuffer.length,hostInetAdr,udpHostPort);
-		tDl.start();
+		
 		try {
-			tDl.open();
+			tDl.open(aFormat);
+			tDl.start();
 		} catch (LineUnavailableException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
