@@ -31,6 +31,7 @@ public class main extends JFrame{
 	public static volatile ServerSocket sSo;
 	
 	public static volatile AudioStreamThread audioWorkerThread;
+	public static volatile TcpThread TcpWorkerThread;
 
 	
 	
@@ -84,7 +85,7 @@ public class main extends JFrame{
 				
 				try {
 					audioWorkerThread = new AudioStreamThread(ipAdrData.getText(), Integer.parseInt(portNumData.getText()));
-					audioWorkerThread.start();
+					//audioWorkerThread.start();
 				} catch (NumberFormatException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -106,6 +107,9 @@ public class main extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				audioWorkerThread.stopPlaying();
+				TcpWorkerThread.isRecording = false;
+				TcpWorkerThread.tDl.stop();
+				TcpWorkerThread.tDl.close();
 				audioWorkerThread.stop();
 			}
 			

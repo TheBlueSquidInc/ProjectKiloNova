@@ -26,6 +26,7 @@ public class TcpThread extends Thread{
 	public static volatile int udpHostPort = 0;
 	public static volatile int numOfBytesRead = 0;
 	public static volatile InetAddress hostInetAdr;
+	public String[] portData = null;
 	
 	
 	public TcpThread(ServerSocket sSobj) {
@@ -39,17 +40,20 @@ public class TcpThread extends Thread{
 	while(true) {
 		
 		try {
+			
 			this.s_2 = sSo_2 .accept();
 			dIs = new DataInputStream(this.s_2.getInputStream());
 			dOs = new DataOutputStream(this.s_2.getOutputStream());
 			this.rcvData = dIs.readUTF();
+			portData = this.rcvData.split(" ");
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		
-		switch(this.rcvData) {
+		switch(portData[0]) {
 		
 			
 		case "Test":
@@ -57,36 +61,21 @@ public class TcpThread extends Thread{
 			break;
 			
 		case "Start":
-			
-			tempBuffer = new byte[tDl.getBufferSize()/5];
+			String destPortStr;
+			System.out.println("Starting port: " + portData[1]);
+			udpHostPort = Integer.parseInt(portData[1]);
+			//System.out.println("Running rec");
 			
 			try {
-				dgSkt = new DatagramSocket();
+				this.dgSkt = new DatagramSocket();
 			} catch (SocketException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			
-			try {
-				
-				dOs.writeUTF("START_ACK" + "|" + dgSkt.getPort());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			try {
-				udpHostPort = Integer.parseInt(dIs.readUTF());
-			} catch (NumberFormatException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			System.out.println("Start command received");
 			runMic();
+			
+			
 			break;
 			
 		case "Stop":
@@ -120,7 +109,6 @@ public class TcpThread extends Thread{
 	public static void runMic() {
 		isRecording = true;
 		hostInetAdr = s_2.getInetAddress();
-		dgPckt = new DatagramPacket(tempBuffer,0,tempBuffer.length,hostInetAdr,udpHostPort);
 		aFormat = new AudioFormat(44100, 8, 2, false, false);
 		tDli = new DataLine.Info(TargetDataLine.class, aFormat);
 		try {
@@ -129,7 +117,15 @@ public class TcpThread extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		tempBuffer = new byte[tDl.getBufferSize()/5];
+		dgPckt = new DatagramPacket(tempBuffer,0,tempBuffer.length,hostInetAdr,udpHostPort);
+		tDl.start();
+		try {
+			tDl.open();
+		} catch (LineUnavailableException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		while(isRecording) {
 			numOfBytesRead = tDl.read(tempBuffer, 0, tempBuffer.length);
 			try {
